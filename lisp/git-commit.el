@@ -133,6 +133,7 @@
 (declare-function magit-list-local-branch-names "magit-git" ())
 (declare-function magit-list-remote-branch-names "magit-git"
                   (&optional remote relative))
+(declare-function magit-rev-parse "magit-git" (&rest args))
 
 ;;; Options
 ;;;; Variables
@@ -195,6 +196,10 @@ The major mode configured here is turned on by the minor mode
 This hook is only run after pressing \\[with-editor-finish] in a buffer used
 to edit a commit message.  If a commit is created without the
 user typing a message into a buffer, then this hook is not run.
+
+This hook is only called if `magit' can be loaded.  If creating
+the commit takes longer than a second, then this hook is not
+called.
 
 Also see `magit-post-commit-hook'."
   :group 'git-commit
@@ -495,10 +500,14 @@ This is only used if Magit is available."
             'git-commit-save-message nil t)
   (add-hook 'with-editor-pre-cancel-hook
             'git-commit-save-message nil t)
-  (add-hook 'with-editor-post-finish-hook 'git-commit-run-post-finish-hook)
   (when (bound-and-true-p magit-wip-merge-branch)
     (add-hook 'with-editor-post-finish-hook
               'magit-wip-commit nil t))
+  (when (and (featurep 'magit-git) git-commit-post-finish-hook)
+    (add-hook 'with-editor-pre-finish-hook
+              'git-commit-save-pre-commit-hash nil t)
+    (add-hook 'with-editor-post-finish-hook
+              'git-commit-run-post-finish-hook nil t))
   (setq with-editor-cancel-message
         'git-commit-cancel-message)
   (make-local-variable 'log-edit-comment-ring-index)
@@ -513,8 +522,21 @@ This is only used if Magit is available."
   (run-hooks 'git-commit-setup-hook)
   (set-buffer-modified-p nil))
 
+(defvar git-commit-pre-commit-hash nil)
+
+(defun git-commit-save-pre-commit-hash ()
+  (setq git-commit-pre-commit-hash (magit-rev-parse "HEAD")))
+
 (defun git-commit-run-post-finish-hook ()
-  (run-hooks 'git-commit-post-finish-hook))
+  (cl-block nil
+    (let ((break (time-add (current-time)
+                           (seconds-to-time 1))))
+      (while (equal (magit-rev-parse "HEAD") git-commit-pre-commit-hash)
+        (if (time-less-p (current-time) break)
+            (sit-for 0.01)
+          (cl-return)))
+      (run-hooks 'git-commit-post-finish-hook)))
+  (setq git-commit-pre-commit-hash nil))
 
 (define-minor-mode git-commit-mode
   "Auxiliary minor mode used when editing Git commit messages.
