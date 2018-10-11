@@ -501,7 +501,7 @@ This is only used if Magit is available."
   (add-hook 'with-editor-pre-cancel-hook
             'git-commit-save-message nil t)
   (when (bound-and-true-p magit-wip-merge-branch)
-    (add-hook 'with-editor-post-finish-hook
+    (add-hook 'git-commit-post-finish-hook
               'magit-wip-commit nil t))
   (when (and (featurep 'magit-git) git-commit-post-finish-hook)
     (add-hook 'with-editor-pre-finish-hook
