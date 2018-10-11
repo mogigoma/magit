@@ -502,12 +502,12 @@ This is only used if Magit is available."
             'git-commit-save-message nil t)
   (when (bound-and-true-p magit-wip-merge-branch)
     (add-hook 'git-commit-post-finish-hook
-              'magit-wip-commit nil t))
+              'magit-wip-commit))
   (when (and (featurep 'magit-git) git-commit-post-finish-hook)
     (add-hook 'with-editor-pre-finish-hook
-              'git-commit-save-pre-commit-hash nil t)
+              'git-commit-save-pre-commit-hash)
     (add-hook 'with-editor-post-finish-hook
-              'git-commit-run-post-finish-hook nil t))
+              'git-commit-run-post-finish-hook))
   (setq with-editor-cancel-message
         'git-commit-cancel-message)
   (make-local-variable 'log-edit-comment-ring-index)
