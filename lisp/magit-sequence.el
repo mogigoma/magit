@@ -387,7 +387,7 @@ without prompting."
   :options  '((?p "Remove leading slashes from paths" "-p" magit-read-number))
   :actions  '((?m "Apply maildir"     magit-am-apply-maildir)
               (?w "Apply patches"     magit-am-apply-patches)
-              (?a "Apply plain patch" magit-patch-apply-popup))
+              (?a "Apply plain patch" magit-patch-apply))
   :default-arguments '("--3way")
   :default-actions 'magit-am-apply-patches
   :max-action-columns 1
