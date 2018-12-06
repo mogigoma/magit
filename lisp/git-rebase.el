@@ -143,7 +143,6 @@
            (define-key map (kbd   "k") 'forward-line)
            (define-key map (kbd "M-i") 'git-rebase-move-line-up)
            (define-key map (kbd "M-k") 'git-rebase-move-line-down)
-           (define-key map (kbd   "p") 'git-rebase-pick)
            (define-key map (kbd   ",") 'git-rebase-kill-line))
           (t
            (define-key map (kbd "C-m") 'git-rebase-show-commit)
